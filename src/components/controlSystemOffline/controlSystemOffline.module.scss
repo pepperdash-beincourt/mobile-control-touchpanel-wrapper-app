@@ -1,3 +1,25 @@
+.containerLight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fff;
+  color: #213547;
+}
+
+.containerDark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #000;
+  color: #fff;
+}
+
 .logo {
   display: block;
   width: 1180px;
