@@ -54,12 +54,13 @@ export const setupWebXPanel = (
 
   if (options.config.zoomRoom) {
     console.log('[CZL] Zoom room is enabled');
-    Zoom.initialize(webXpanelParams).then(() => {
+    Zoom.initialize().then((authToken) => {
       console.log('[CZL] Zoom initialized successfully');
+      WebXPanel.initialize({ ...options.config, authToken });
     });
+  } else {
+    WebXPanel.initialize(options.config);
   }
-
-  WebXPanel.initialize(options.config);
 
   WebXPanel.addEventListener(WebXPanelEvents.CONNECT_WS, () => {
     store.dispatch(options.actions.setWebXPanelWsConnected(true));

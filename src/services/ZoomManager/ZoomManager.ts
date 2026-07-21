@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-let wxp: any;
 let targetOrigin = '';
 let webSocketToken: string;
 let webSocketTokenEvent: Event;
@@ -7,17 +6,11 @@ let webSocketTokenEvent: Event;
 export default class ZoomManager {
   private static instance: ZoomManager;
 
-  initialize(webXPanelParam: any) {
-    wxp = webXPanelParam;
-
+  initialize(): Promise<string> {
     this.finishInitialization();
 
-    return new Promise((resolve) => {
-      // async/await for event before returning
-      waitForWebSocketToken().then(() => {
-        resolve('success');
-      });
-    });
+    // async/await for event before returning the token
+    return waitForWebSocketToken();
   }
 
   finishInitialization() {
@@ -76,18 +69,17 @@ function handleMessages(this: any, event: any) {
   }
 }
 
-function waitForWebSocketToken() {
+function waitForWebSocketToken(): Promise<string> {
   return new Promise((resolve) => {
     let timer: number | undefined;
 
     function customWebSocketTokenEventHandler() {
       clearTimeout(timer);
-      wxp.default.websocketToken = webSocketToken;
       window.removeEventListener(
         'webSocketTokenEvent',
         customWebSocketTokenEventHandler
       );
-      resolve("[CZL] set 'wxp.default.websocketToken'");
+      resolve(webSocketToken);
     }
 
     webSocketTokenEvent = new CustomEvent('webSocketTokenEvent');
