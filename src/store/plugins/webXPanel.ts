@@ -21,7 +21,7 @@ const {
 export type WebXPanelConfigParams = typeof WebXPanelConfigParams;
 
 interface IWebXPanelOptions {
-  config: Partial<WebXPanelConfigParams> & { zoomRoom: boolean };
+  config: Partial<WebXPanelConfigParams> & { zoomRoom?: string };
   actions: {
     setWebXPanelOnline: (value: boolean) => UnknownAction;
     setWebXPanelConfig: (
