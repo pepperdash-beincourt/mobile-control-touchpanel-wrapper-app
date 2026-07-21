@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CrComLib } from '@pepperdash/ch5-crcomlib-lite';
 import { getWebXPanel, runsInContainerApp } from '@crestron/ch5-webxpanel';
+import Zoom from '../../services';
 import { Store, UnknownAction } from 'redux';
+
+const webXpanelParams = getWebXPanel(!runsInContainerApp());
 
 const {
   WebXPanel,
@@ -13,7 +16,7 @@ const {
   enableDebugging,
   setLogLevel,
   LogLevel,
-} = getWebXPanel(!runsInContainerApp());
+} = webXpanelParams;
 
 export type WebXPanelConfigParams = typeof WebXPanelConfigParams;
 
@@ -43,6 +46,8 @@ export const setupWebXPanel = (
   if (!isActive) {
     return store;
   }
+
+  Zoom.initialize(webXpanelParams);
 
   enableDebugging();
   setLogLevel(LogLevel.DEBUG);
