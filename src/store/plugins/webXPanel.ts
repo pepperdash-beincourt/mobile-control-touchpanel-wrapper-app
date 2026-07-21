@@ -21,7 +21,7 @@ const {
 export type WebXPanelConfigParams = typeof WebXPanelConfigParams;
 
 interface IWebXPanelOptions {
-  config: Partial<WebXPanelConfigParams>;
+  config: Partial<WebXPanelConfigParams> & { zoomRoom: boolean };
   actions: {
     setWebXPanelOnline: (value: boolean) => UnknownAction;
     setWebXPanelConfig: (
@@ -47,12 +47,17 @@ export const setupWebXPanel = (
     return store;
   }
 
-  Zoom.initialize(webXpanelParams);
-
   enableDebugging();
   setLogLevel(LogLevel.DEBUG);
 
   window.CrComLib = CrComLib;
+
+  if (options.config.zoomRoom) {
+    console.log('[CZL] Zoom room is enabled');
+    Zoom.initialize(webXpanelParams).then(() => {
+      console.log('[CZL] Zoom initialized successfully');
+    });
+  }
 
   WebXPanel.initialize(options.config);
 
