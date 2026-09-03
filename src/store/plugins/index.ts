@@ -25,8 +25,20 @@ export const applyReduxPlugins = (store: Store) => {
   const roomId = qp.get('roomId');
   const port = qp.get('port');
   const authToken = qp.get('authToken');
+  const zoomRoom = qp.get('zoomRoom');
 
-  console.log('host', host, 'ipId', ipId, 'roomId', roomId, 'port', port);
+  console.log(
+    'host',
+    host,
+    'ipId',
+    ipId,
+    'roomId',
+    roomId,
+    'port',
+    port,
+    'zoomRoom',
+    zoomRoom
+  );
 
   setupWebXPanel(store, {
     config: {
@@ -35,6 +47,7 @@ export const applyReduxPlugins = (store: Store) => {
       roomId: roomId ? roomId : undefined,
       port: port ? parseInt(port) : undefined,
       authToken: authToken ? authToken : undefined,
+      zoomRoom: zoomRoom ? zoomRoom : undefined,
     },
     actions: {
       setWebXPanelOnline,
