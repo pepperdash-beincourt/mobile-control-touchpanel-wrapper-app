@@ -1,6 +1,8 @@
 import { Store } from '@reduxjs/toolkit';
 import {
   setControlSystemOnline,
+  setCustomLogoUrlDark,
+  setCustomLogoUrlLight,
   setMcAppUrl,
   setPanelIpAddress,
   setWebXPanelBuildDate,
@@ -15,7 +17,13 @@ import setupWebXPanel from './webXPanel';
 
 export const applyReduxPlugins = (store: Store) => {
   setupTrilist(store, {
-    actions: { setControlSystemOnline, setMcAppUrl, setPanelIpAddress },
+    actions: {
+      setControlSystemOnline,
+      setMcAppUrl,
+      setPanelIpAddress,
+      setCustomLogoUrlLight,
+      setCustomLogoUrlDark,
+    },
   });
 
   const qp = new URLSearchParams(window.location.search);

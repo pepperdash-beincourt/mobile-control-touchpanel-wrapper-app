@@ -7,6 +7,8 @@ export interface IControlSystemActions {
     setControlSystemOnline: (online: boolean) => UnknownAction;
     setMcAppUrl: (address: string) => UnknownAction;
     setPanelIpAddress: (address: string) => UnknownAction;
+    setCustomLogoUrlLight: (url: string) => UnknownAction;
+    setCustomLogoUrlDark: (url: string) => UnknownAction;
   };
 }
 
@@ -69,6 +71,14 @@ function setupTrilist(store: Store, options: IControlSystemActions) {
 
   CrComLib.subscribeState('s', '1', (value: string) =>
     store.dispatch(options.actions.setMcAppUrl(value))
+  );
+
+  CrComLib.subscribeState('s', '5', (value: string) =>
+    store.dispatch(options.actions.setCustomLogoUrlLight(value))
+  );
+
+  CrComLib.subscribeState('s', '6', (value: string) =>
+    store.dispatch(options.actions.setCustomLogoUrlDark(value))
   );
 
   return store;
