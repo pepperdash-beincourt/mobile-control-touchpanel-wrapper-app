@@ -30,9 +30,9 @@
   "branches": [
     "main",
     {
-      "name": "csv-sandbox-touchpanel-wrapper",
-      "prerelease": "csv-sandbox-touchpanel-wrapper",
-      "channel": "csv-sandbox-touchpanel-wrapper"
+      "name": "replace-me-feature-branch",
+      "prerelease": "replace-me-prerelease",
+      "channel": "replace-me-prerelease"
     }
   ]
 }
