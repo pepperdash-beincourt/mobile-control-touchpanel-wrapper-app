@@ -54,10 +54,16 @@ export const setupWebXPanel = (
 
   if (options.config.zoomRoom) {
     console.log('[CZL] Zoom room is enabled');
-    Zoom.initialize().then((authToken) => {
-      console.log('[CZL] Zoom initialized successfully');
-      WebXPanel.initialize({ ...options.config, authToken });
-    });
+    Zoom.initialize()
+      .then((authToken) => {
+        console.log('[CZL] Zoom initialized successfully');
+        WebXPanel.initialize({ ...options.config, authToken });
+      })
+      .catch((error) => {
+        // Start the panel anyway rather than leave it uninitialized with no way to recover.
+        console.log(`[CZL] Zoom initialization failed (${error}); initializing without a websocket token`);
+        WebXPanel.initialize(options.config);
+      });
   } else {
     WebXPanel.initialize(options.config);
   }

@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// How long to wait for the host to supply the websocket token before giving up.
+const WEBSOCKET_TOKEN_TIMEOUT_MS = 10000;
+
 let targetOrigin = '';
 let webSocketToken: string;
 let webSocketTokenEvent: Event;
@@ -35,13 +38,30 @@ export default class ZoomManager {
 }
 
 function handleMessages(this: any, event: any) {
-  const data = JSON.parse(event.data);
+  // Other frames and scripts post messages too; only JSON strings are part of this handshake.
+  if (typeof event.data !== 'string') {
+    return;
+  }
 
-  // Do not check if message is 'ch5-zoom-lib-ready-ack'. The message response contains 'targetOrigin'
-  if (data.message !== 'ch5-zoom-lib-ready-ack') {
-    if (targetOrigin !== event.origin) {
+  let data: any;
+  try {
+    data = JSON.parse(event.data);
+  } catch {
+    return;
+  }
+
+  if (!data || typeof data !== 'object') {
+    return;
+  }
+
+  if (data.message === 'ch5-zoom-lib-ready-ack') {
+    // The acknowledgement supplies the origin every later message is checked against, so accept it
+    // only from the host window, and only once.
+    if (event.source !== window.parent || targetOrigin) {
       return;
     }
+  } else if (targetOrigin !== event.origin) {
+    return;
   }
 
   switch (data.message) {
@@ -50,8 +70,15 @@ function handleMessages(this: any, event: any) {
       const message = JSON.stringify({
         message: 'get-websockettoken',
       });
-      const url = new URL(data.data);
-      targetOrigin = url.protocol + '//' + url.hostname;
+      let origin: string;
+      try {
+        // URL.origin keeps a non-default port, which the replies' event.origin includes.
+        origin = new URL(data.data).origin;
+      } catch {
+        console.log('[CZL] ignored ack with an invalid origin');
+        return;
+      }
+      targetOrigin = origin;
       window.parent.postMessage(message, targetOrigin);
       console.log("[CZL] posted message 'get-websockettoken'");
       break;
@@ -70,17 +97,24 @@ function handleMessages(this: any, event: any) {
 }
 
 function waitForWebSocketToken(): Promise<string> {
-  return new Promise((resolve) => {
-    let timer: number | undefined;
-
+  return new Promise((resolve, reject) => {
     function customWebSocketTokenEventHandler() {
-      clearTimeout(timer);
+      window.clearTimeout(timer);
       window.removeEventListener(
         'webSocketTokenEvent',
         customWebSocketTokenEventHandler
       );
       resolve(webSocketToken);
     }
+
+    // Without a bound, a host that never answers leaves the panel waiting forever.
+    const timer = window.setTimeout(() => {
+      window.removeEventListener(
+        'webSocketTokenEvent',
+        customWebSocketTokenEventHandler
+      );
+      reject(new Error(`No websocket token received within ${WEBSOCKET_TOKEN_TIMEOUT_MS} ms`));
+    }, WEBSOCKET_TOKEN_TIMEOUT_MS);
 
     webSocketTokenEvent = new CustomEvent('webSocketTokenEvent');
     window.addEventListener(
