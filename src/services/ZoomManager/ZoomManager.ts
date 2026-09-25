@@ -54,10 +54,16 @@ function handleMessages(this: any, event: any) {
     return;
   }
 
+  // Every handshake message comes from the host window; another frame on the same origin must not
+  // be able to answer it (for example, to supply its own websocket token).
+  if (event.source !== window.parent) {
+    return;
+  }
+
   if (data.message === 'ch5-zoom-lib-ready-ack') {
     // The acknowledgement supplies the origin every later message is checked against, so accept it
-    // only from the host window, and only once.
-    if (event.source !== window.parent || targetOrigin) {
+    // only once.
+    if (targetOrigin) {
       return;
     }
   } else if (targetOrigin !== event.origin) {
@@ -113,7 +119,11 @@ function waitForWebSocketToken(): Promise<string> {
         'webSocketTokenEvent',
         customWebSocketTokenEventHandler
       );
-      reject(new Error(`No websocket token received within ${WEBSOCKET_TOKEN_TIMEOUT_MS} ms`));
+      reject(
+        new Error(
+          `No websocket token received within ${WEBSOCKET_TOKEN_TIMEOUT_MS} ms`
+        )
+      );
     }, WEBSOCKET_TOKEN_TIMEOUT_MS);
 
     webSocketTokenEvent = new CustomEvent('webSocketTokenEvent');

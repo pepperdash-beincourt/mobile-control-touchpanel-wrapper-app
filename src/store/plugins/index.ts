@@ -1,8 +1,6 @@
 import { Store } from '@reduxjs/toolkit';
 import {
   setControlSystemOnline,
-  setCustomLogoUrlDark,
-  setCustomLogoUrlLight,
   setMcAppUrl,
   setPanelIpAddress,
   setWebXPanelBuildDate,
@@ -21,8 +19,6 @@ export const applyReduxPlugins = (store: Store) => {
       setControlSystemOnline,
       setMcAppUrl,
       setPanelIpAddress,
-      setCustomLogoUrlLight,
-      setCustomLogoUrlDark,
     },
   });
 

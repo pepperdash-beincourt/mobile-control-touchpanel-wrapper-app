@@ -61,7 +61,9 @@ export const setupWebXPanel = (
       })
       .catch((error) => {
         // Start the panel anyway rather than leave it uninitialized with no way to recover.
-        console.log(`[CZL] Zoom initialization failed (${error}); initializing without a websocket token`);
+        console.log(
+          `[CZL] Zoom initialization failed (${error}); initializing without a websocket token`
+        );
         WebXPanel.initialize(options.config);
       });
   } else {
