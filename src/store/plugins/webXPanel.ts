@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CrComLib } from '@pepperdash/ch5-crcomlib-lite';
 import { getWebXPanel, runsInContainerApp } from '@crestron/ch5-webxpanel';
+import Zoom from '../../services';
 import { Store, UnknownAction } from 'redux';
+
+const webXpanelParams = getWebXPanel(!runsInContainerApp());
 
 const {
   WebXPanel,
@@ -13,12 +16,12 @@ const {
   enableDebugging,
   setLogLevel,
   LogLevel,
-} = getWebXPanel(!runsInContainerApp());
+} = webXpanelParams;
 
 export type WebXPanelConfigParams = typeof WebXPanelConfigParams;
 
 interface IWebXPanelOptions {
-  config: Partial<WebXPanelConfigParams>;
+  config: Partial<WebXPanelConfigParams> & { zoomRoom?: string };
   actions: {
     setWebXPanelOnline: (value: boolean) => UnknownAction;
     setWebXPanelConfig: (
@@ -49,7 +52,23 @@ export const setupWebXPanel = (
 
   window.CrComLib = CrComLib;
 
-  WebXPanel.initialize(options.config);
+  if (options.config.zoomRoom) {
+    console.log('[CZL] Zoom room is enabled');
+    Zoom.initialize()
+      .then((authToken) => {
+        console.log('[CZL] Zoom initialized successfully');
+        WebXPanel.initialize({ ...options.config, authToken });
+      })
+      .catch((error) => {
+        // Start the panel anyway rather than leave it uninitialized with no way to recover.
+        console.log(
+          `[CZL] Zoom initialization failed (${error}); initializing without a websocket token`
+        );
+        WebXPanel.initialize(options.config);
+      });
+  } else {
+    WebXPanel.initialize(options.config);
+  }
 
   WebXPanel.addEventListener(WebXPanelEvents.CONNECT_WS, () => {
     store.dispatch(options.actions.setWebXPanelWsConnected(true));
